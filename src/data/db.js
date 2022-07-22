@@ -8,6 +8,8 @@ import {
   setDoc,
   doc,
   documentId,
+  orderBy,
+  deleteDoc,
 } from "firebase/firestore";
 
 import { onSnapshot, serverTimestamp, Timestamp } from "firebase/firestore";
@@ -80,17 +82,56 @@ const actions = {
       return null;
     }
     const theDoc = result.data();
-    const messagesCol = collection(channelCol, result.id, "messages");
+    const messagesCol = query(
+      collection(channelCol, result.id, "messages"),
+      orderBy("timestamp", "asc")
+    );
     const unsubscribe = onSnapshot(messagesCol, (...args) => {
       func(unsubscribe, ...args);
     });
+    return unsubscribe;
+  },
+  async getChannel(channelId, justResult = true) {
+    const q = doc(db, "channels", channelId);
+
+    const result = await getDoc(q);
+    if (!result.exists()) {
+      return null;
+    }
+    return justResult ? { ...result.data(), id: result.id } : result;
+  },
+  async storeChannel(data, channelId) {
+    let channel = null;
+    if (channelId) {
+      channel = doc(collection(this.db, "channels"), channelId);
+    } else {
+      channel = doc(collection(this.db, "channels"));
+    }
+
+    let res = null;
+    try {
+      res = await setDoc(channel, data, { merge: true });
+      res = this.getChannel(channel.id);
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+
+    return res;
+  },
+  async removeChannel(channelId) {
+    await deleteDoc(doc(db, "channels", channelId));
   },
   channelListener(func) {
     // get channel and listen for updates
-    const channelCol = collection(this.db, "channels");
+    const channelCol = query(
+      collection(this.db, "channels"),
+      orderBy("timestamp", "asc")
+    );
     const unsubscribe = onSnapshot(channelCol, (...args) => {
       func(unsubscribe, ...args);
     });
+    return unsubscribe;
   },
   async userListener(userId, func) {
     const userDoc = await this.getUser(userId, false);
@@ -98,6 +139,7 @@ const actions = {
     const unsubscribe = onSnapshot(userDoc, (...args) => {
       func(unsubscribe, ...args);
     });
+    return unsubscribe;
   },
 };
 
@@ -114,5 +156,6 @@ export {
   signInWithRedirect,
   getRedirectResult,
   signOut,
+  serverTimestamp,
 };
 export default db;

@@ -29,6 +29,7 @@ function App() {
   return (
     <div className="App">
       {isLoaded ? user ? <Home /> : <Login /> : <Loading />}
+      {/*<Home />*/}
     </div>
   );
 }

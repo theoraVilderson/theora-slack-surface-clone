@@ -19,7 +19,7 @@ function Header() {
 				/>
 				<input
 					type="search"
-					className="bg-transparent min-w-[350px] h-10 outline-0 w-full max-w-[500px] pl-12 pr-2 rounded-[2px]"
+					className="bg-transparent md:min-w-[350px] h-10 outline-0 w-full max-w-[500px] pl-12 pr-2 rounded-[2px]"
 					placeholder="Search Theora Vilderson"
 				/>
 			</div>

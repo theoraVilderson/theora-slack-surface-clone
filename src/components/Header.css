@@ -1,0 +1,7 @@
+header {
+	background: var(--bg);
+	color: var(--text);
+}
+input[type="search"] {
+	border: solid 1px var(--text);
+}

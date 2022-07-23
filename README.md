@@ -14,7 +14,7 @@
 -   **Responsive**
 -   **server TimeStap(use one time for everyone around world)**
 -   **Authentication**
--   **LOGIN/SSIGNUP with GOOGLE**
+-   **LOGIN/SIGNUP with GOOGLE**
 -   **realTime update!**
 -   **create Rooms/channels**
 -   **Material UI**

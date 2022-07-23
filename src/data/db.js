@@ -38,6 +38,7 @@ const db = getFirestore(app);
 const actions = {
   db,
 
+  // it will update user or create new one
   async storeUser({ userName, userImage, email, userId }) {
     const usersCol = doc(collection(this.db, "users"), userId);
 
@@ -69,6 +70,14 @@ const actions = {
       return null;
     }
     return justResult ? { ...result.data(), id: result.id } : result;
+  },
+
+  userListener(userId, func) {
+    const userDoc = doc(db, "users", userId);
+    const unsubscribe = onSnapshot(userDoc, (...args) => {
+      func(unsubscribe, ...args);
+    });
+    return unsubscribe;
   },
   async storeMessage(channelId, data, messageId) {
     // get message and listen for updates
@@ -158,14 +167,6 @@ const actions = {
       orderBy("timestamp", "asc")
     );
     const unsubscribe = onSnapshot(channelCol, (...args) => {
-      func(unsubscribe, ...args);
-    });
-    return unsubscribe;
-  },
-  async userListener(userId, func) {
-    const userDoc = await this.getUser(userId, false);
-    if (!userDoc) return 1;
-    const unsubscribe = onSnapshot(userDoc, (...args) => {
       func(unsubscribe, ...args);
     });
     return unsubscribe;

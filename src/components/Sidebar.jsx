@@ -134,7 +134,7 @@ function Sidebar() {
 				</Avatar>
 			</div>
 
-			<div className="sticky top-0 md:h-screen pt-3 overflow-y-auto">
+			<div className="sticky top-0 pt-3 overflow-y-auto sidebar__items">
 				<SidebarItem title="Threads" Icon={InsertCommentIcon} />
 				<SidebarItem title="Mentions and reactions" Icon={InboxIcon} />
 				<SidebarItem title="Saved Items" Icon={DraftsIcon} />

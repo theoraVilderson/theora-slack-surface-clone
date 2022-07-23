@@ -3,3 +3,8 @@
 	color: var(--text-bold);
 	min-height: 100%;
 }
+@media (min-width: 768px) {
+	.sidebar__items {
+		height: calc(90vh - 56px);
+	}
+}

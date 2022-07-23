@@ -3,16 +3,14 @@ import {
   getFirestore,
   collection,
   query,
-  where,
   getDoc,
   setDoc,
   doc,
-  documentId,
   orderBy,
   deleteDoc,
 } from "firebase/firestore";
 
-import { onSnapshot, serverTimestamp, Timestamp } from "firebase/firestore";
+import { onSnapshot, serverTimestamp } from "firebase/firestore";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -55,7 +53,7 @@ const actions = {
         },
         { merge: true }
       );
-      res = this.getUser(usersCol.id);
+      res = await this.getUser(usersCol.id);
     } catch (e) {
       console.log(e);
       return null;
@@ -72,21 +70,42 @@ const actions = {
     }
     return justResult ? { ...result.data(), id: result.id } : result;
   },
-
-  async messageListener(channelId, func) {
+  async storeMessage(channelId, data, messageId) {
     // get message and listen for updates
-    const channelCol = collection(this.db, "channels");
-    const q = doc(db, "channels", channelId);
-    const result = await getDoc(q);
-    if (!result.exists()) {
+    const messagesCol = doc(collection(this.db, "channels"), channelId);
+
+    let messagesColWithOrder = null;
+    if (messageId) {
+      messagesColWithOrder = doc(
+        collection(messagesCol, "messages"),
+        messageId
+      );
+    } else {
+      messagesColWithOrder = doc(collection(messagesCol, "messages"));
+    }
+
+    try {
+      await setDoc(messagesColWithOrder, data, { merge: true });
+      return true;
+    } catch (e) {
+      console.log(e);
       return null;
     }
-    const theDoc = result.data();
-    const messagesCol = query(
-      collection(channelCol, result.id, "messages"),
+  },
+  async removeMessage(channelId, messageId) {
+    const messagesCol = doc(collection(this.db, "channels"), channelId);
+    const messagesColWithOrder = collection(messagesCol, "messages");
+    await deleteDoc(doc(messagesColWithOrder, messageId));
+  },
+  messageListener(channelId, func) {
+    // get message and listen for updates
+    const messagesCol = doc(collection(this.db, "channels"), channelId);
+
+    const messagesColWithOrder = query(
+      collection(messagesCol, "messages"),
       orderBy("timestamp", "asc")
     );
-    const unsubscribe = onSnapshot(messagesCol, (...args) => {
+    const unsubscribe = onSnapshot(messagesColWithOrder, (...args) => {
       func(unsubscribe, ...args);
     });
     return unsubscribe;
@@ -111,7 +130,7 @@ const actions = {
     let res = null;
     try {
       res = await setDoc(channel, data, { merge: true });
-      res = this.getChannel(channel.id);
+      res = await this.getChannel(channel.id);
     } catch (e) {
       console.log(e);
       return null;
@@ -122,7 +141,17 @@ const actions = {
   async removeChannel(channelId) {
     await deleteDoc(doc(db, "channels", channelId));
   },
-  channelListener(func) {
+
+  channelListener(channelId, func) {
+    const unsubscribe = onSnapshot(
+      doc(collection(this.db, "channels"), channelId),
+      (...args) => {
+        func(unsubscribe, ...args);
+      }
+    );
+    return unsubscribe;
+  },
+  channelsListener(func) {
     // get channel and listen for updates
     const channelCol = query(
       collection(this.db, "channels"),

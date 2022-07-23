@@ -3,9 +3,22 @@ import Avatar from "@mui/material/Avatar";
 import { useGlobalContext } from "../context/globalContext";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import SearchIcon from "@mui/icons-material/Search";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { auth, signOut } from "../data/db";
+import { useState } from "react";
+import { actionTypes } from "../reducer/globalReducer";
+
 function Header() {
-	const [{ user }] = useGlobalContext();
+	const [{ user }, dispatch] = useGlobalContext();
+	const [isProcces, setIsProcess] = useState(false);
+
+	const logoutUser = function () {
+		if (isProcces) return 1;
+		setIsProcess(true);
+		signOut(auth);
+		dispatch({ type: actionTypes.LOGOUT_USER });
+		setIsProcess(false);
+	};
 	return (
 		<header className="flex flex-col gap-5 md:flex-row justify-between items-center p-2">
 			<div className="flex gap-5 w-full md:w-auto justify-between md:justify-center items-center">
@@ -24,7 +37,7 @@ function Header() {
 				/>
 			</div>
 
-			<HelpOutlineOutlinedIcon />
+			<LogoutIcon className="cursor-pointer" onClick={logoutUser} />
 		</header>
 	);
 }

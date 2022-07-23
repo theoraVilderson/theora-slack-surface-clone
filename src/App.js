@@ -3,8 +3,8 @@ import "./App.css";
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Loading from "./components/Loading";
-import { useGlobalContext, GlobalStateProvider } from "./context/globalContext";
-import reducer, { initialValue, actionTypes } from "./reducer/globalReducer";
+import { useGlobalContext } from "./context/globalContext";
+import { actionTypes } from "./reducer/globalReducer";
 import { actions } from "./data/db";
 
 function App() {
@@ -24,7 +24,7 @@ function App() {
 
       return setIsLoaded(true);
     })();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="App">

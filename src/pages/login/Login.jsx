@@ -5,7 +5,6 @@ import Loading from "../../components/Loading";
 import { useGlobalContext } from "../../context/globalContext";
 import { actionTypes } from "../../reducer/globalReducer";
 import {
-	GoogleAuthProvider,
 	signInWithPopup,
 	signInWithRedirect,
 	getRedirectResult,
@@ -54,9 +53,9 @@ function Login() {
 		}
 		signInWithRedirect(auth, googleProvider);
 	};
+
 	useEffect(() => {
 		if (user) return setRedirectLoadingDone(true);
-
 		getRedirectResult(auth)
 			.then((result) => {
 				if (result?.user) {
@@ -69,7 +68,7 @@ function Login() {
 			.finally((e) => {
 				setRedirectLoadingDone(true);
 			});
-	}, []);
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return !redirectLoadingDone ? (
 		<Loading />

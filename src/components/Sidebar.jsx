@@ -15,7 +15,6 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 
 import { useGlobalContext } from "../context/globalContext";
 import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
 import "./Sidebar.css";
 import Button from "@mui/material/Button";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -63,7 +62,7 @@ export function SidebarItem({ title, Icon, roomId, children, ...props }) {
 		if (!newName.trim())
 			return alert("you can't change name to empty name");
 
-		actions.storeChannel({ name: newName }, roomId);
+		actions.storeChannel({ name: newName.slice(0, 30) }, roomId);
 	};
 	return (
 		<ThemeProvider theme={theme}>
@@ -71,14 +70,14 @@ export function SidebarItem({ title, Icon, roomId, children, ...props }) {
 				{...props}
 				{...(!isChannel ? null : { onClick: onChannelClick })}
 				variant="text"
-				className="flex w-full bg-transparent !justify-start gap-5 p-2 cursor-pointer !not-italic !normal-case"
+				className="flex w-full group bg-transparent !justify-start gap-5 p-2 cursor-pointer !not-italic !normal-case"
 			>
 				<div className="w-4">
 					{Icon ? <Icon sx={{ width: 20, height: 20 }} /> : "#"}
 				</div>
 				<h3>{title}</h3>
 				{!isChannel ? null : (
-					<div className="flex-1 flex justify-end">
+					<div className="flex-1 md:hidden md:group-hover:flex flex justify-end">
 						<DriveFileRenameOutlineIcon
 							onClick={onChannelRenameClick}
 						/>
@@ -110,15 +109,13 @@ function Sidebar() {
 	};
 
 	useEffect(() => {
-		const unsub = actions.channelListener((sub, data) => {
+		const unsub = actions.channelsListener((sub, data) => {
 			setChannels(data.docs.map((e) => ({ id: e.id, ...e.data() })));
 		});
-		return () => {
-			unsub();
-		};
+		return unsub;
 	}, []);
 	return (
-		<aside className="sidebar w-full md:w-1/3 md:max-w-[300px]  flex flex-col">
+		<aside className="sidebar w-full md:w-1/3 md:max-w-[300px]  flex flex-col ">
 			<div className="flex justify-between items-center p-2 border-b border-solid border-[rgba(255,255,255,.2)]">
 				<div>
 					<h2> Slack Surface Clone </h2>
@@ -137,7 +134,7 @@ function Sidebar() {
 				</Avatar>
 			</div>
 
-			<div className="flex-1 pt-3">
+			<div className="sticky top-0 md:h-screen pt-3 overflow-y-auto">
 				<SidebarItem title="Threads" Icon={InsertCommentIcon} />
 				<SidebarItem title="Mentions and reactions" Icon={InboxIcon} />
 				<SidebarItem title="Saved Items" Icon={DraftsIcon} />
@@ -151,8 +148,22 @@ function Sidebar() {
 				/>
 				<SidebarItem title="Apps" Icon={AppsIcon} />
 				<SidebarItem title="File Browser" Icon={FileCopyIcon} />
-				<SidebarItem title="Show Less" Icon={ExpandLessIcon} />
-				<SidebarItem title="Channels" Icon={ExpandMoreIcon} />
+				<SidebarItem
+					title="Show Less"
+					style={{
+						padding: "10px",
+						borderBottom: "solid 1px rgba(255,255,255,.5)",
+					}}
+					Icon={ExpandLessIcon}
+				/>
+				<SidebarItem
+					title="Channels"
+					style={{
+						padding: "10px",
+						borderBottom: "solid 1px rgba(255,255,255,.5)",
+					}}
+					Icon={ExpandMoreIcon}
+				/>
 				<SidebarItem
 					title="Add Channels"
 					Icon={AddIcon}
